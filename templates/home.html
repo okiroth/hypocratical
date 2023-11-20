@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MultiOptions demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="container">
+        <br /><br /><br />
+        <h1>Enter Your Question and Options</h1>
+        <br />
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <label for="input1" class="form-label">Question</label>
+                        <input autofocus type="text" class="form-control" id="user-question"
+                            value="What's Argentina's capital?">
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col">
+                        <label for="input2" class="form-label">Option 1</label>
+                        <input type="text" class="form-control" id="user-option-0" value="Paris">
+                    </div>
+                    <div class="col">
+                        <label for="input3" class="form-label">Option 2</label>
+                        <input type="text" class="form-control" id="user-option-1" value="Cheese">
+                    </div>
+                    <div class="col">
+                        <label for="input4" class="form-label">Option 3</label>
+                        <input type="text" class="form-control" id="user-option-2" value="Buenos Aires">
+                    </div>
+                    <div class="col">
+                        <label for="input4" class="form-label">Option 3</label>
+                        <input type="text" class="form-control" id="user-option-3" value="Capital">
+                    </div>
+                </div>
+                <br />
+                <button class="btn btn-primary" onclick="userPost('ask')">Choose</button>
+                <button class="btn btn-warning" onclick="userPost('ask-why')">Why?</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <br /><br /><br />
+        <h1>Examples</h1>
+        <br />
+        {% for row in data %}
+        <div class="card">
+            <div class="card-body">
+                <strong>{{ row.question }}</strong>
+                <div>
+                    <p>{{ question }}</p>
+                    {% for option in row.options %}
+                    <div id="option {{row.id}} {{loop.index}}">
+                        <div>&bull; {{ option }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <br />
+                <button class="btn btn-primary"
+                    onclick="examplePost('ask', '{{row.id}}', '{{row.json}}')">Choose</button>
+                <button class="btn btn-warning"
+                    onclick="examplePost('ask-why', '{{row.id}}', '{{row.json}}')">Why?</button>
+            </div>
+        </div>
+        <br /><br /><br />
+
+        {% endfor %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+
+    <script>
+
+        // AUTOFOCUS the User Question
+        var input = document.getElementById('user-question');
+        input.focus();
+        input.select();
+
+        function userPost(url) {
+            for (let i = 0; i < 4; i++) {
+                document.getElementById(`user-option-${i}`).style.backgroundColor = 'white';
+            }
+
+            const data = {
+                question: document.getElementById("user-question").value,
+                options: [
+                    document.getElementById("user-option-0").value,
+                    document.getElementById("user-option-1").value,
+                    document.getElementById("user-option-2").value,
+                    document.getElementById("user-option-3").value,
+                ]
+            }
+            fetch('/' + url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (typeof data != 'number') {
+                        alert(data);
+                        return;
+                    }
+                    document.getElementById('user-option-' + data).style.backgroundColor = '#AFE1AF';
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function examplePost(url, rowId, data) {
+            fetch('/' + url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: data,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (typeof data != 'number') {
+                        alert(data);
+                        return;
+                    }
+                    document.getElementById('option ' + rowId + ' ' + data).style.backgroundColor = '#AFE1AF';
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+</body>
+
+</html>

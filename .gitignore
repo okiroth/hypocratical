@@ -1,0 +1,6 @@
+.venv
+__pycache__
+openaikey.docx
+.DS_Store
+node_modules
+api/.env
