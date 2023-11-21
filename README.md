@@ -5,6 +5,7 @@ To run the `flask` server or the tests:
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+export OPENAI_API_KEY="YOUR API KEY"
 flask --app server.py --debug run --port 8000
 ```
 
