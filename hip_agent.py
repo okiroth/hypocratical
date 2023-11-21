@@ -31,7 +31,6 @@ class HIPAgent:
             The index of the answer choice that matches the response, or -1 if the response
             does not match any answer choice.
         """
-
         messages = []
 
         # Prepare the actual Prompt
