@@ -13,7 +13,6 @@ app.json.sort_keys = False  # type: ignore
 def home():
     with open("testbench.csv", "r") as csvfile:
         reader = csv.reader(csvfile)
-        headers = next(reader)
         data = list(reader)
 
         aux = []
