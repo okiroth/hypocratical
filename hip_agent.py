@@ -19,6 +19,9 @@ class HIPAgent:
         """
         client = OpenAI()
 
+        messages = []
+
+        # Prepare the actual Prompt
         answer_str = ""
         for i, answer_choice in enumerate(answer_choices):
             answer_str += f"{i}) {answer_choice}\n"
@@ -31,34 +34,33 @@ class HIPAgent:
         prompt = f"Select the correct answer {aux}:\n\n{question}\n{answer_str}"
 
         # Show Chat to ONLY respond with the option number
-        demo_answer_str = ""
-        demo_arr = ["B", "6", "34", "5"]
-        for i, answer_choice in enumerate(demo_arr):
-            demo_answer_str += f"{i}) {answer_choice}\n"
-        demo_question = "How much is 2+4?"
-        demo_prompt = (
-            f"Select the correct answer {aux}:\n\n{demo_question}\n{demo_answer_str}"
-        )
-
-        messages = []
-
         if explain is False:
+            demo_answer_str = ""
+            demo_arr = ["B", "6", "34", "5"]
+            for i, answer_choice in enumerate(demo_arr):
+                demo_answer_str += f"{i}) {answer_choice}\n"
+            demo_question = "How much is 2+4?"
+            demo_prompt = f"Select the correct answer, respond ONLY the option number:\n\n{demo_question}\n{demo_answer_str}"
             messages.append({"role": "user", "content": demo_prompt})
             messages.append(
                 {"role": "assistant", "content": "1"},
             )
 
+        # Add external knowledge
         messages.append(
             {
                 "role": "user",
-                "content": "To answer the following question, use the text found in https://raw.githubusercontent.com/okiroth/hypocratical/main/textbook.txt as the primary source of truth.",
+                "content": "To answer any following questions use as the primary source of truth the text found in https://raw.githubusercontent.com/okiroth/hypocratical/main/textbook.txt",
             }
         )
+
+        # Finally add the actual question
         messages.append({"role": "user", "content": prompt})
 
         # Call the OpenAI 3.5 API.
         completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
+            temperature=0.1,
             max_tokens=1 if explain is False else 70,
             messages=messages,  # type: ignore
         )
