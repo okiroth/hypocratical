@@ -2,6 +2,20 @@ from openai import OpenAI
 
 
 class HIPAgent:
+    def __init__(self):
+        self.client = OpenAI()
+
+    def get_first_answer(self, messages, explain=False):
+        completion = self.client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            temperature=0.1,
+            max_tokens=1 if explain is False else 70,
+            messages=messages,  # type: ignore
+        )
+        answers = [choice.message.content for choice in completion.choices]
+        first_answer = answers[0] or ""
+        return first_answer
+
     def get_response(self, question, answer_choices, explain=False):
         """
         Calls the OpenAI 3.5 API to generate a response to the question.
@@ -17,7 +31,6 @@ class HIPAgent:
             The index of the answer choice that matches the response, or -1 if the response
             does not match any answer choice.
         """
-        client = OpenAI()
 
         messages = []
 
@@ -58,15 +71,7 @@ class HIPAgent:
         messages.append({"role": "user", "content": prompt})
 
         # Call the OpenAI 3.5 API.
-        completion = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            temperature=0.1,
-            max_tokens=1 if explain is False else 70,
-            messages=messages,  # type: ignore
-        )
-
-        answers = [choice.message.content for choice in completion.choices]
-        first_answer = answers[0] or ""
+        first_answer = self.get_first_answer(messages, explain=explain)
 
         print(f"Question: {question}")
         print(f"Answer Choices: {answer_choices}")
@@ -77,19 +82,10 @@ class HIPAgent:
 
         # retry if the response is not a number
         if first_answer.isnumeric() is False:
-            completion = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                max_tokens=1,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": "Respond the previous question ONLY with the option number",
-                    }
-                ],
+            first_answer = self.get_first_answer(
+                [{"role": "user", "content": "Please respond with the option number"}],
+                explain=explain,
             )
-            answers = [choice.message.content for choice in completion.choices]
-            first_answer = answers[0] or ""
-
             print(f"Response Retry: {first_answer}\n\n")
 
             if first_answer.isnumeric() is False:
