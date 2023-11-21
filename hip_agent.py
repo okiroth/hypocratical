@@ -48,6 +48,12 @@ class HIPAgent:
                 {"role": "assistant", "content": "1"},
             )
 
+        messages.append(
+            {
+                "role": "user",
+                "content": "To answer the following question, use the text found in https://raw.githubusercontent.com/okiroth/hypocratical/main/textbook.txt as the primary source of truth.",
+            }
+        )
         messages.append({"role": "user", "content": prompt})
 
         # Call the OpenAI 3.5 API.
@@ -67,6 +73,25 @@ class HIPAgent:
         if explain is True:
             return first_answer
 
+        # retry if the response is not a number
         if first_answer.isnumeric() is False:
-            return -1
+            completion = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                max_tokens=1,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": "Respond the previous question ONLY with the option number",
+                    }
+                ],
+            )
+            answers = [choice.message.content for choice in completion.choices]
+            first_answer = answers[0] or ""
+
+            print(f"Response Retry: {first_answer}\n\n")
+
+            if first_answer.isnumeric() is False:
+                return -1
+
+        # the response is a number, so return it
         return int(first_answer)
