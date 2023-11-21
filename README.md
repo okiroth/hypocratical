@@ -1,8 +1,10 @@
 # Solution
-To run the `flask` server, first install it and then run:
+To run the `flask` server or the tests:
 
 ```bash
-pip install flask
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 flask --app server.py --debug run --port 8000
 ```
 
